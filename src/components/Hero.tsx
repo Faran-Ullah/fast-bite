@@ -50,9 +50,11 @@ const Hero = () => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button variant="glass" size="xl">
-              View Menu
-            </Button>
+            <Link to="/menu">
+              <Button variant="glass" size="xl">
+                View Menu
+              </Button>
+            </Link>
           </div>
 
           {/* Stats */}
