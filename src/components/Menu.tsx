@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Plus, Star, Search } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "@/hooks/use-toast";
+import { useState, useMemo } from "react";
 
 // Import food images
 import burgerImg from "@/assets/burger.jpg";
@@ -65,12 +67,124 @@ const menuItems = [
     category: "Chicken",
     rating: 4.5,
   },
+  {
+    id: "7",
+    name: "BBQ Burger",
+    description: "Smoky BBQ burger with bacon, onion rings, and BBQ sauce",
+    price: 16.99,
+    image: burgerImg,
+    category: "Burgers",
+    rating: 4.9,
+  },
+  {
+    id: "8",
+    name: "Margherita Pizza",
+    description: "Classic pizza with fresh mozzarella, tomatoes, and basil",
+    price: 16.99,
+    image: pizzaImg,
+    category: "Pizza",
+    rating: 4.6,
+  },
+  {
+    id: "9",
+    name: "Chicken Tenders",
+    description: "Hand-breaded chicken tenders with honey mustard sauce",
+    price: 11.99,
+    image: chickenImg,
+    category: "Chicken",
+    rating: 4.7,
+  },
+  {
+    id: "10",
+    name: "Onion Rings",
+    description: "Crispy beer-battered onion rings with tangy dipping sauce",
+    price: 6.99,
+    image: friesImg,
+    category: "Sides",
+    rating: 4.4,
+  },
+  {
+    id: "11",
+    name: "Veggie Burger",
+    description: "Plant-based patty with avocado, sprouts, and special vegan sauce",
+    price: 13.99,
+    image: burgerImg,
+    category: "Burgers",
+    rating: 4.3,
+  },
+  {
+    id: "12",
+    name: "Hawaiian Pizza",
+    description: "Sweet and savory pizza with ham, pineapple, and cheese",
+    price: 19.99,
+    image: pizzaImg,
+    category: "Pizza",
+    rating: 4.2,
+  },
+  {
+    id: "13",
+    name: "Grilled Chicken",
+    description: "Perfectly seasoned grilled chicken breast with herbs",
+    price: 14.99,
+    image: chickenImg,
+    category: "Chicken",
+    rating: 4.8,
+  },
+  {
+    id: "14",
+    name: "Loaded Fries",
+    description: "Crispy fries topped with cheese, bacon, and green onions",
+    price: 8.99,
+    image: friesImg,
+    category: "Sides",
+    rating: 4.7,
+  },
+  {
+    id: "15",
+    name: "Fish Burger",
+    description: "Crispy fish fillet with lettuce, tomato, and tartar sauce",
+    price: 13.99,
+    image: burgerImg,
+    category: "Burgers",
+    rating: 4.5,
+  },
+  {
+    id: "16",
+    name: "Supreme Pizza",
+    description: "Loaded pizza with pepperoni, sausage, peppers, and olives",
+    price: 22.99,
+    image: pizzaImg,
+    category: "Pizza",
+    rating: 4.8,
+  },
 ];
 
 const categories = ["All", "Burgers", "Chicken", "Pizza", "Sides"];
 
 const Menu = () => {
   const { addItem } = useCart();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    let filtered = menuItems;
+    
+    // Filter by category
+    if (selectedCategory !== "All") {
+      filtered = filtered.filter(item => item.category === selectedCategory);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered;
+  }, [selectedCategory, searchQuery]);
 
   const handleAddToCart = (item: typeof menuItems[0]) => {
     addItem({
@@ -98,13 +212,27 @@ const Menu = () => {
           </p>
         </div>
 
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto mb-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-foreground/50" />
+            <Input
+              placeholder="Search for food items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 glass"
+            />
+          </div>
+        </div>
+
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           {categories.map((category) => (
             <Button
               key={category}
-              variant="glass"
+              variant={selectedCategory === category ? "cta" : "glass"}
               className="hover:bg-primary hover:text-primary-foreground"
+              onClick={() => setSelectedCategory(category)}
             >
               {category}
             </Button>
@@ -113,7 +241,12 @@ const Menu = () => {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {menuItems.map((item, index) => (
+          {filteredItems.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-xl text-foreground/70">No items found matching your search.</p>
+            </div>
+          ) : (
+            filteredItems.map((item, index) => (
             <Card
               key={item.id}
               className="glass-card group cursor-pointer overflow-hidden"
@@ -157,7 +290,8 @@ const Menu = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>
